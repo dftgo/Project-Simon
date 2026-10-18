@@ -57,5 +57,5 @@
 
 ## פקודות הרצה
 > Claude ממלא זאת ברגע שהאפליקציה יכולה לרוץ (בדרך כלל בסיום Milestone 1), ומעדכן אם משהו משתנה.
-- **הרצה (dev):** `<command>`
-- **בדיקות (test):** `<command, או "אין">`
+- **הרצה (dev):** `powershell -ExecutionPolicy Bypass -File serve.ps1` (מתיקיית הפרויקט) ← לפתוח `http://localhost:8080/`
+- **בדיקות (test):** אין

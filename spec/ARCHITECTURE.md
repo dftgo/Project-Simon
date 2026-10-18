@@ -68,7 +68,7 @@
 
 ### א. מבנה המערכת ורכיבים מרכזיים
 
-המערכת בנויה בארכיטקטורת **Modular Single-Page Application (SPA)** הרצה במלואה בדפדפן הלקוח. מעבר בין מסך הבית (המשחק) למסך "אודות" מתבצע באמצעות החלפת תצוגה (DOM View Toggling) ללא טעינה מחדש של הדף.
+המערכת בנויה בארכיטקטורת **Modular Single-Page Application (SPA)** הרצה במלואה בדפדפן הלקוח. מעבר בין מסך הבית (המשחק) למסך "אודות" מתבצע באמצעות החלפת תצוגה (DOM View Toggling) ללא טעינה מחדש של הדף. מסך הפתיחה, שמוצג בכל טעינה של הדף, הוא מסך "אודות".
 
 ```text
 +-------------------------------------------------------------------+
@@ -101,7 +101,7 @@
 
 1. **`index.html` (Application Shell & Views):**
    * מכיל את מעטפת המסמך (`<html lang="he" dir="rtl">`), קישור ל-`manifest.json`, ורישום ה-Service Worker.
-   * מכיל שני מיכלים ראשיים (`<main id="game-view">` ו-`<section id="about-view" hidden>`) המייצגים את שני המסכים של האפליקציה.
+   * מכיל שני מיכלים ראשיים (`<main id="game-view" hidden>` ו-`<section id="about-view">`) המייצגים את שני המסכים של האפליקציה. מסך אודות גלוי בטעינה (מסך הפתיחה), ומסך המשחק מוסתר עד לחיצה על `"חזרה למשחק"`.
 
 2. **`css/style.css` (Presentation & Mobile Layout Layer):**
    * מגדיר עיצוב Mobile-First מותאם לאחיזה אנכית (`max-width: 480px` ממורכז במסכים רחבים יותר, גובה `100dvh` עם `overflow: hidden` במסך המשחק למניעת גלילה).
@@ -238,10 +238,10 @@ const gameState = {
   2. מצב המשחק מתאפס ל-`IDLE` **ללא שמירת ציון ב-`localStorage`**, ומסך הבית חוזר למצב ההתחלתי.
 
 היא נקראת בשני מקרים:
-* **לחיצה על `"אודות"`:** אחרי הביטול, מסך המשחק מוסתר ומסך "אודות" מוצג עם הנתונים העדכניים מה-`localStorage`.
+* **לחיצה על `"אודות"`:** אחרי הביטול, מסך המשחק מוסתר ומסך "אודות" מוצג עם הנתונים העדכניים מה-`localStorage`. מאחר שמסך אודות הוא מסך הפתיחה, הנתונים מוצגים בו גם בטעינת הדף.
 * **יציאה מהאפליקציה:** באירוע `visibilitychange`, כאשר `document.hidden` הוא `true` (מעבר לאפליקציה אחרת, נעילת מסך, החלפת לשונית).
 
-בריפרש אין צורך בקוד מיוחד – המצב נמצא בזיכרון בלבד ונמחק מעצמו.
+בריפרש אין צורך בקוד מיוחד – המצב נמצא בזיכרון בלבד ונמחק מעצמו, והדף נפתח שוב במסך אודות (מסך הפתיחה).
 
 ---
 
@@ -305,3 +305,12 @@ const gameState = {
 * **MDN Web Docs – Progressive Web Apps (PWAs):** מדריך רשמי להגדרת `manifest.json` ורישום `Service Worker` לאפליקציות מובייל (https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps).
 * **MDN Web Docs – Web Storage API (`localStorage`):** תיעוד שמירת נתונים בצד הלקוח וטיפול בשגיאות הרשאה/מכסה (https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
 * **GitHub Docs – GitHub Pages:** תיעוד רשמי לאירוח אתרים סטטיים ופריסה אוטומטית מתוך GitHub Repository (https://docs.github.com/en/pages).
+
+---
+
+## החלטות מרכזיות (ADRs)
+
+### ADR-1: מקור קבצי הגופנים המקומיים
+**הקשר:** הגופנים Rubik ו-Assistant צריכים להישמר בתוך הפרויקט, עם קובץ `woff2` נפרד לכל משקל ולכל תת-קבוצה (Hebrew ו-Latin). ה-API של Google Fonts מחזיר קבצים בכתובות משתנות, ותלוי בדפדפן שמבקש אותם.
+**החלטה:** הקבצים הורדו פעם אחת מחבילות Fontsource (`@fontsource/rubik@5`, `@fontsource/assistant@5`) דרך jsDelivr. אלה אותם קבצי Google Fonts, בשמות קבועים (למשל `rubik-hebrew-700-normal.woff2`). הם נשמרו ב-`assets/fonts/` בשם מקוצר (`rubik-hebrew-700.woff2`), ונטענים ב-`@font-face` עם `unicode-range`.
+**השלכות:** האתר לא פונה לשום שרת חיצוני. כדי להוסיף משקל, צריך להוריד עוד שני קבצים (Hebrew ו-Latin) ולהוסיף שני בלוקי `@font-face`.

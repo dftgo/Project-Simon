@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#34B6D8">
+  <meta name="description" content="סיימון – משחק זיכרון של אורות וצלילים">
+  <title>סיימון</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <script type="module" src="./js/app.js"></script>
+</head>
+<body>
+  <!-- Shared illustration symbols (fish shapes reused by several SVGs) -->
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="fish" viewBox="0 0 40 20">
+        <path d="M27 10 L39 3 Q36 10 39 17 Z" fill="currentColor"/>
+        <ellipse cx="16" cy="10" rx="14" ry="7" fill="currentColor"/>
+        <ellipse cx="15" cy="7" rx="8" ry="2.2" fill="#FFFFFF" opacity="0.3"/>
+        <circle cx="7.5" cy="8.5" r="1.6" fill="#0B3B5C"/>
+      </symbol>
+      <clipPath id="clown-body">
+        <ellipse cx="18" cy="11" rx="15" ry="8"/>
+      </clipPath>
+      <symbol id="clownfish" viewBox="0 0 44 22">
+        <path d="M30 11 L43 4 Q40 11 43 18 Z" fill="#F28C3D" stroke="#10324A" stroke-width="0.8" stroke-linejoin="round"/>
+        <ellipse cx="18" cy="11" rx="15" ry="8" fill="#F28C3D"/>
+        <g clip-path="url(#clown-body)" stroke="#10324A" stroke-width="0.8">
+          <rect x="9" y="0" width="5" height="22" rx="2.5" fill="#FFFFFF"/>
+          <rect x="20" y="0" width="5" height="22" rx="2.5" fill="#FFFFFF"/>
+        </g>
+        <ellipse cx="18" cy="11" rx="15" ry="8" fill="none" stroke="#10324A" stroke-width="0.8"/>
+        <circle cx="6.5" cy="9" r="1.6" fill="#0B3B5C"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <!-- Ocean background: light rays and bubbles -->
+    <svg class="bg" viewBox="0 0 390 845" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="ray" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
+          <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <g fill="url(#ray)">
+        <path d="M70 0 L118 0 L38 560 L-6 560 Z" opacity="0.5"/>
+        <path d="M168 0 L196 0 L132 480 L108 480 Z" opacity="0.4"/>
+        <path d="M262 0 L320 0 L250 620 L198 620 Z" opacity="0.45"/>
+        <path d="M352 0 L376 0 L338 420 L318 420 Z" opacity="0.35"/>
+      </g>
+      <g fill="#FFFFFF" fill-opacity="0.18" stroke="#FFFFFF" stroke-opacity="0.65" stroke-width="1">
+        <circle cx="358" cy="236" r="5"/>
+        <circle cx="30" cy="300" r="3.5"/>
+        <circle cx="342" cy="420" r="3"/>
+        <circle cx="24" cy="470" r="5.5"/>
+        <circle cx="372" cy="560" r="4"/>
+        <circle cx="52" cy="130" r="3"/>
+      </g>
+      <g fill="#FFFFFF" fill-opacity="0.8">
+        <circle cx="356.5" cy="234.5" r="1.3"/>
+        <circle cx="22" cy="468" r="1.4"/>
+      </g>
+    </svg>
+
+    <!-- Home (game) screen -->
+    <main id="game-view" class="view game-view" hidden>
+      <header class="app-header">
+        <h1 class="app-title">סיימון</h1>
+        <div class="header-actions">
+          <button id="mute-btn" class="icon-btn" type="button" aria-label="השתק">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z"/>
+              <path d="M15.5 9a4.2 4.2 0 0 1 0 6"/>
+              <path d="M18 6.5a7.8 7.8 0 0 1 0 11"/>
+            </svg>
+          </button>
+          <button id="about-btn" class="btn-secondary" type="button">אודות</button>
+        </div>
+      </header>
+
+      <!-- Level line and status pill are added in Milestone 2 -->
+      <div class="info-area"></div>
+
+      <!-- Game board is added in Milestone 2 -->
+      <div class="board-area"></div>
+
+      <!-- Decorative seabed: shrinks first when height is short -->
+      <div class="seabed" aria-hidden="true">
+        <svg viewBox="0 0 390 220" preserveAspectRatio="xMidYMax meet" focusable="false">
+          <!-- Seaweed (left) -->
+          <g fill="none" stroke-linecap="round">
+            <path d="M22 224 C 10 196, 34 176, 20 146 S 30 104, 18 80" stroke="#2E9E6E" stroke-width="7"/>
+            <path d="M40 224 C 52 200, 30 180, 44 154 S 34 124, 46 108" stroke="#82E3B4" stroke-width="6"/>
+            <path d="M58 224 C 50 204, 64 190, 54 166" stroke="#3FAF7E" stroke-width="5"/>
+          </g>
+          <!-- Yellow fan corals -->
+          <path d="M0 192 C 16 186, 28 202, 24 224 L0 224 Z" fill="#F2B63D" opacity="0.9"/>
+          <path d="M370 224 C 356 198, 368 176, 392 180 L392 224 Z" fill="#F2B63D" opacity="0.9"/>
+          <!-- Red branching coral (right) -->
+          <g fill="none" stroke="#E0533D" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M330 224 L330 186"/>
+            <path d="M330 198 L312 168 L304 150"/>
+            <path d="M312 168 L322 152"/>
+            <path d="M330 192 L350 162 L344 144"/>
+            <path d="M350 162 L364 150"/>
+          </g>
+          <!-- Blue and pink small corals -->
+          <g stroke-linecap="round" fill="none" stroke-width="6">
+            <path d="M282 224 L282 204 M282 212 L274 200 M282 210 L290 198" stroke="#1F8AC7"/>
+            <path d="M84 224 L84 208 M84 214 L77 204 M84 213 L91 203" stroke="#F4A3B4"/>
+          </g>
+          <!-- Starfish and shell -->
+          <path d="M252 197 L254.4 202.8 L260.6 203.2 L255.8 207.2 L257.3 213.3 L252 210 L246.7 213.3 L248.2 207.2 L243.4 203.2 L249.6 202.8 Z" fill="#F2B63D" stroke="#F2B63D" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M214 220 A11 11 0 0 1 236 220 Z" fill="#F7C9B8"/>
+          <path d="M225 220 L225 210 M219 220 L221 212 M231 220 L229 212" stroke="#E8A48F" stroke-width="1.2" stroke-linecap="round"/>
+          <!-- Fish -->
+          <use href="#fish" x="78" y="34" width="34" height="17" style="color:#1F6FD1"/>
+          <use href="#fish" x="128" y="70" width="22" height="11" style="color:#34B6D8"/>
+          <use href="#clownfish" x="186" y="44" width="42" height="21"/>
+          <g transform="translate(340 20) scale(-1 1)">
+            <use href="#fish" x="0" y="0" width="40" height="20" style="color:#1F6FD1"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Sand strip behind the start button -->
+      <svg class="sand" viewBox="0 0 390 60" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="sand-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F3D9A4"/>
+            <stop offset="1" stop-color="#E8C68A"/>
+          </linearGradient>
+        </defs>
+        <path d="M0 16 C 60 4, 120 22, 195 13 S 330 4, 390 15 L390 60 L0 60 Z" fill="url(#sand-fill)"/>
+      </svg>
+
+      <button id="start-btn" class="btn-primary" type="button">
+        <span>התחל</span>
+        <svg class="play-icon" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+          <path d="M3 1.8 L10 6 L3 10.2 Z"/>
+        </svg>
+      </button>
+    </main>
+
+    <!-- About screen (first screen on load) -->
+    <section id="about-view" class="view about-view">
+      <!-- Background fish and bubbles -->
+      <svg class="about-fish" viewBox="0 0 390 845" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+        <g transform="translate(372 404) scale(-1 1)">
+          <use href="#fish" x="0" y="0" width="38" height="19" style="color:#1F6FD1"/>
+        </g>
+        <use href="#clownfish" x="24" y="520" width="44" height="22"/>
+        <use href="#fish" x="300" y="600" width="24" height="12" style="color:#34B6D8"/>
+        <use href="#fish" x="70" y="690" width="34" height="17" style="color:#135E96"/>
+        <g transform="translate(360 730) scale(-1 1)">
+          <use href="#fish" x="0" y="0" width="26" height="13" style="color:#1F6FD1"/>
+        </g>
+        <g fill="#FFFFFF" fill-opacity="0.18" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1">
+          <circle cx="352" cy="380" r="4"/>
+          <circle cx="362" cy="364" r="2.5"/>
+          <circle cx="80" cy="500" r="3.5"/>
+          <circle cx="290" cy="580" r="3"/>
+        </g>
+      </svg>
+
+      <header class="app-header">
+        <h1 class="app-title">סיימון</h1>
+      </header>
+
+      <div class="about-hero">
+        <h2 class="screen-title">אודות המשחק</h2>
+        <!-- Decorative mini game board with fish -->
+        <svg class="about-deco" viewBox="0 0 140 104" aria-hidden="true" focusable="false">
+          <g transform="rotate(-6 88 52)">
+            <rect x="40" y="6" width="94" height="94" rx="22" fill="#FFFFFF" fill-opacity="0.55" stroke="#FFFFFF"/>
+            <rect x="48" y="14" width="36" height="36" rx="10" fill="#2E9E6E"/>
+            <rect x="90" y="14" width="36" height="36" rx="10" fill="#E0533D"/>
+            <rect x="48" y="56" width="36" height="36" rx="10" fill="#F2B63D"/>
+            <rect x="90" y="56" width="36" height="36" rx="10" fill="#1F6FD1"/>
+            <g fill="#FFFFFF" fill-opacity="0.3">
+              <rect x="52" y="17" width="28" height="9" rx="4.5"/>
+              <rect x="94" y="17" width="28" height="9" rx="4.5"/>
+              <rect x="52" y="59" width="28" height="9" rx="4.5"/>
+              <rect x="94" y="59" width="28" height="9" rx="4.5"/>
+            </g>
+          </g>
+          <g transform="translate(38 70) scale(-1 1)">
+            <use href="#clownfish" x="0" y="0" width="34" height="17"/>
+          </g>
+          <use href="#fish" x="4" y="28" width="26" height="13" style="color:#1F6FD1"/>
+          <g fill="#FFFFFF" fill-opacity="0.2" stroke="#FFFFFF" stroke-opacity="0.75" stroke-width="1">
+            <circle cx="24" cy="12" r="3.5"/>
+            <circle cx="34" cy="22" r="2"/>
+          </g>
+        </svg>
+      </div>
+      <p class="about-text">צפו ברצף האורות והצלילים וחזרו עליו לפי הסדר. בכל שלב מתווסף צבע אחד לרצף – השלימו את כל 10 השלבים כדי לנצח!</p>
+
+      <!-- High score card and history list are added in Milestone 4 -->
+      <div class="about-content"></div>
+
+      <button id="back-btn" class="btn-primary" type="button">חזרה למשחק</button>
+    </section>
+  </div>
+</body>
+</html>
